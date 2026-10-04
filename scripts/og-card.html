@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://ericwcr7.github.io/">
+  <title>Share image source</title>
+  <!-- Source for assets/og-image.png. Capture at a 1200x630 viewport, device scale 1, light theme (see README). -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&amp;family=Source+Serif+4:opsz,wght@8..60,600&amp;display=swap">
+  <link rel="stylesheet" href="../assets/site.css">
+  <style>
+    :root {
+      color-scheme: light;
+    }
+
+    html,
+    body {
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+      background: var(--paper);
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: 340px minmax(0, 1fr);
+      column-gap: 64px;
+      align-items: center;
+      height: 100%;
+      padding: 0 80px;
+    }
+
+    .card .portrait {
+      width: 340px;
+    }
+
+    .card h1 {
+      font-family: var(--serif);
+      font-size: 84px;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .card .role {
+      margin-top: 22px;
+      font-size: 36px;
+      line-height: 1.25;
+    }
+
+    .card .role span {
+      display: block;
+      color: var(--muted);
+    }
+
+    /* The site's timeline, condensed to one row per category. */
+    .strip {
+      position: relative;
+      margin-top: 44px;
+    }
+
+    .strip .row {
+      height: 17px;
+    }
+
+    .strip .tl-track {
+      display: block;
+      height: 100%;
+    }
+
+    .strip .tl-track::before {
+      display: none;
+    }
+
+    .strip .tl-bar {
+      height: 8px;
+    }
+
+    .strip .tl-dot {
+      width: 10px;
+      height: 10px;
+    }
+
+    .strip-asof {
+      position: absolute;
+      top: -5px;
+      bottom: -5px;
+      left: calc(var(--asof) / var(--span) * 100%);
+      border-left: 1.5px solid var(--muted);
+    }
+
+    .card .url {
+      margin-top: 36px;
+      color: var(--muted);
+      font-size: 26px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img class="portrait" src="../assets/portrait.jpg" width="600" height="600" alt="">
+    <div>
+      <h1>Yi Fan (Eric) Wang</h1>
+      <p class="role">Data science student<span>University of Toronto</span></p>
+      <div class="strip" aria-hidden="true">
+        <div class="row cat-study"><span class="tl-track"><span class="tl-bar" style="--start: 0; --end: var(--asof)"></span><span class="tl-bar is-expected" style="--start: var(--asof); --end: 58"></span></span></div>
+        <div class="row cat-research"><span class="tl-track"><span class="tl-bar is-ongoing" style="--start: 48"></span></span></div>
+        <div class="row cat-work"><span class="tl-track"><span class="tl-bar" style="--start: 20; --end: 24"></span><span class="tl-bar" style="--start: 32; --end: 36"></span></span></div>
+        <div class="row cat-projects"><span class="tl-track"><span class="tl-dot" style="--at: 27.5"></span><span class="tl-dot" style="--at: 31.5"></span><span class="tl-dot" style="--at: 38.5"></span><span class="tl-dot" style="--at: 43.5"></span><span class="tl-bar is-ongoing" style="--start: 45"></span></span></div>
+        <div class="row cat-activities"><span class="tl-track"><span class="tl-bar" style="--start: 0; --end: 9"></span><span class="tl-bar" style="--start: 12; --end: 16"></span></span></div>
+        <span class="strip-asof"></span>
+      </div>
+      <p class="url">ericwcr7.github.io</p>
+    </div>
+  </main>
+</body>
+</html>
