@@ -1,0 +1,801 @@
+/*
+  Yi Fan (Eric) Wang, personal site.
+  Color encodes category only (study, research, work, projects, activities);
+  everything else is ink on paper.
+*/
+
+/* Local fallbacks scaled to the web fonts' widths, so text does not reflow when they load. */
+@font-face {
+  font-family: "Source Sans 3 Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 400;
+  size-adjust: 92.9%;
+}
+
+@font-face {
+  font-family: "Source Sans 3 Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 600 700;
+  size-adjust: 89.1%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 600 700;
+  size-adjust: 79.2%;
+}
+
+:root {
+  color-scheme: light dark;
+
+  --paper: #ffffff;
+  --ink: #1e2430;
+  --muted: #59616f;
+  --rule: #d5dae1;
+  --grid: #e8ebef;
+
+  --c-study: #0072b2;
+  --c-research: #009e73;
+  --c-work: #d55e00;
+  --c-projects: #cc79a7;
+  --c-activities: #737b89;
+
+  --serif: "Source Serif 4", "Source Serif 4 Fallback", Georgia, "Times New Roman", serif;
+  --sans: "Source Sans 3", "Source Sans 3 Fallback", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+  --s-9: 6rem;
+
+  --page: 72rem;
+  --gutter: 1rem;
+  --rail: 13rem; /* metadata rail, also the chart's label column */
+  --gap: 2rem;
+  --measure: 36rem; /* about 70 characters of body text */
+  --header-h: 3.5rem;
+
+  /* Chart axis: months since Sep 2022. --span ends with Jun 2027; --asof is Oct 3, 2026
+     and must change together with the "Oct 2026" labels in index.html. */
+  --span: 58;
+  --asof: 49.1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #161a21;
+    --ink: #e6e9ef;
+    --muted: #a3abb8;
+    --rule: #2e3541;
+    --grid: #232933;
+    --c-study: #56b4e9;
+    --c-activities: #6e7686;
+  }
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --gutter: 2rem;
+  }
+}
+
+@media (max-width: 39.99rem) {
+  :root {
+    --rail: 7rem;
+    --gap: 1rem;
+  }
+}
+
+.cat-study { --cat: var(--c-study); }
+.cat-research { --cat: var(--c-research); }
+.cat-work { --cat: var(--c-work); }
+.cat-projects { --cat: var(--c-projects); }
+.cat-activities { --cat: var(--c-activities); }
+
+/* Base */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  font-kerning: normal;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p,
+li,
+dd {
+  text-wrap: pretty;
+}
+
+ul {
+  padding: 0;
+}
+
+[role="list"] {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+main:focus {
+  outline: none;
+}
+
+abbr[title] {
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+  cursor: help;
+}
+
+time {
+  white-space: nowrap;
+}
+
+sub {
+  position: relative;
+  bottom: -0.25em;
+  font-size: 0.7em;
+  line-height: 0;
+  vertical-align: baseline;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: var(--s-2);
+  left: var(--gutter);
+  z-index: 100;
+  padding: var(--s-2) var(--s-4);
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  text-decoration: none;
+  translate: 0 -200%;
+}
+
+.skip-link:focus {
+  translate: none;
+}
+
+.wrap {
+  max-width: var(--page);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Header */
+
+.site-header {
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+
+.header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--s-6);
+  min-height: var(--header-h);
+  padding-block: var(--s-2);
+}
+
+.site-name {
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--s-5);
+}
+
+.nav-list a {
+  display: inline-block;
+  padding-block: var(--s-1);
+  color: var(--muted);
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.nav-list a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.nav-list li:last-child a {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* 52rem: the header measures about 50rem on one line, so it only sticks when it cannot wrap. */
+@media (min-width: 52rem) and (min-height: 36rem) {
+  html {
+    scroll-padding-top: calc(var(--header-h) + var(--s-4));
+  }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+}
+
+/* Hero */
+
+.hero {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  column-gap: var(--gap);
+  align-items: center;
+  padding-top: var(--s-7);
+}
+
+/* The portrait sits in the rail column, directly above the chart's labels, cropped as a circle. */
+.portrait {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+  background: var(--grid);
+}
+
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.5rem, 1.5rem + 4.5vw, 4.5rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  max-width: 36rem;
+  margin-top: var(--s-4);
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.3125rem);
+  line-height: 1.5;
+}
+
+.hero-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--s-5);
+  margin-top: var(--s-4);
+}
+
+.hero-links a {
+  display: inline-block;
+  padding-block: var(--s-1);
+  font-weight: 600;
+}
+
+/* Timeline chart */
+
+.timeline {
+  margin-top: var(--s-6);
+}
+
+.tl-plot {
+  position: relative;
+  padding-block: 1.5rem 1.75rem;
+}
+
+.tl-rows {
+  position: relative;
+  z-index: 1;
+}
+
+.tl-rows a {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  column-gap: var(--gap);
+  align-items: center;
+  min-height: 1.75rem;
+  padding-block: 0.125rem;
+  text-decoration: none;
+}
+
+.tl-label {
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  text-wrap: balance;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+.tl-rows a:hover .tl-label,
+.tl-rows a:focus-visible .tl-label {
+  text-decoration-color: currentColor;
+}
+
+.tl-track {
+  position: relative;
+  align-self: stretch;
+}
+
+/* A faint guide per row, as in a dot plot, so the eye can travel from label to mark. */
+.tl-track::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  border-top: 1px solid var(--grid);
+}
+
+.tl-bar,
+.tl-dot {
+  position: absolute;
+  top: 50%;
+  background: var(--cat);
+  print-color-adjust: exact;
+}
+
+.tl-bar {
+  left: calc(var(--start) / var(--span) * 100%);
+  width: calc((var(--end) - var(--start)) / var(--span) * 100%);
+  height: 0.625rem;
+  border-radius: 2px;
+  translate: 0 -50%;
+}
+
+.tl-bar.is-expected {
+  background: none;
+  border: 1.5px dashed var(--cat);
+}
+
+/* Ongoing bars end exactly at the "as of" line; a minimum width grows leftward. */
+.tl-bar.is-ongoing {
+  right: calc((var(--span) - var(--asof)) / var(--span) * 100%);
+  left: auto;
+  width: max(0.375rem, calc((var(--asof) - var(--start)) / var(--span) * 100%));
+}
+
+.tl-dot {
+  left: calc(var(--at) / var(--span) * 100%);
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+
+.tl-axis {
+  position: absolute;
+  inset: 0 0 0 calc(var(--rail) + var(--gap));
+  z-index: 0;
+  pointer-events: none;
+}
+
+.tl-year,
+.tl-asof {
+  position: absolute;
+  bottom: 1.75rem;
+  border-left: 1px solid var(--grid);
+}
+
+.tl-year {
+  top: 1.5rem;
+  left: calc(var(--at) / var(--span) * 100%);
+}
+
+.tl-asof {
+  top: 1.25rem;
+  left: calc(var(--asof) / var(--span) * 100%);
+  border-left-color: var(--muted);
+}
+
+.tl-year > span,
+.tl-asof > span {
+  position: absolute;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  translate: -50% 0;
+}
+
+.tl-year > span {
+  bottom: -1.5rem;
+}
+
+.tl-asof > span {
+  top: -1.25rem;
+}
+
+figcaption {
+  max-width: var(--measure);
+  margin-top: var(--s-3);
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--s-5);
+  margin-bottom: var(--s-1);
+  color: var(--ink);
+}
+
+.legend li::before,
+.section:is(.cat-study, .cat-research, .cat-work, .cat-projects, .cat-activities) .section-title::before {
+  content: "";
+  display: inline-block;
+  width: 1rem;
+  height: 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: 2px;
+  background: var(--cat);
+  vertical-align: 0.1em;
+  print-color-adjust: exact;
+}
+
+@media (min-width: 48rem) {
+  .section-title::before {
+    margin-left: -1.5rem;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tl-rows:has(a:hover) a:not(:hover) .tl-track {
+    opacity: 0.35;
+  }
+}
+
+.tl-rows:has(a:focus-visible) a:not(:focus-visible) .tl-track {
+  opacity: 0.35;
+}
+
+/* Sections and entries */
+
+.section {
+  margin-top: var(--s-9);
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(1.625rem, 1.3rem + 1vw, 2rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  grid-template-areas:
+    "meta head"
+    "meta body";
+  column-gap: var(--gap);
+  margin-top: var(--s-6);
+}
+
+/* Marks the entry reached from the chart; it sits in the gutter, so nothing shifts. */
+.entry::before {
+  content: "";
+  position: absolute;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  left: calc(-1 * var(--s-3));
+  width: 3px;
+  border-radius: 2px;
+}
+
+.entry:target::before {
+  background: var(--cat, var(--ink));
+}
+
+.entry-head {
+  grid-area: head;
+  max-width: var(--measure);
+}
+
+.entry-head h3 {
+  font-size: 1.1875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.entry-org {
+  color: var(--muted);
+}
+
+.entry-meta {
+  grid-area: meta;
+  padding-top: 0.125rem;
+  color: var(--muted);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+}
+
+.rail-link {
+  display: inline-block;
+  padding-block: 0.125rem;
+  color: var(--ink);
+}
+
+.entry-body {
+  grid-area: body;
+  max-width: var(--measure);
+}
+
+.points {
+  margin-top: var(--s-3);
+  padding-left: 1.15em;
+}
+
+.points li + li {
+  margin-top: var(--s-2);
+}
+
+.points li::marker {
+  color: var(--muted);
+}
+
+.note {
+  margin-top: var(--s-1);
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.entry-body > p:first-child {
+  margin-top: var(--s-3);
+}
+
+.project-title {
+  font-weight: 600;
+}
+
+.courses {
+  width: 100%;
+  max-width: 34rem;
+  margin-top: var(--s-5);
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.courses caption {
+  margin-bottom: var(--s-2);
+  font-weight: 600;
+  text-align: left;
+}
+
+.courses th,
+.courses td {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.courses thead th {
+  color: var(--muted);
+  font-size: 0.9375rem;
+  font-weight: 400;
+}
+
+.courses tbody th {
+  padding-right: var(--s-5);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.courses td:last-child,
+.courses thead th:last-child {
+  padding-left: var(--s-4);
+  text-align: right;
+}
+
+.pairs {
+  margin-top: var(--s-5);
+}
+
+.pairs > div {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  column-gap: var(--gap);
+  padding-block: var(--s-2);
+}
+
+.pairs dt {
+  padding-top: 0.0625rem;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.pairs dd {
+  grid-column: 2;
+  max-width: var(--measure);
+}
+
+.pairs dd + dd {
+  margin-top: var(--s-1);
+}
+
+.contact-lede {
+  margin-top: var(--s-4);
+}
+
+/* Footer */
+
+.site-footer {
+  margin-top: var(--s-9);
+  border-top: 1px solid var(--rule);
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--s-2) var(--s-5);
+  padding-block: var(--s-6);
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+/* Small screens */
+
+@media (max-width: 39.99rem) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--s-5);
+    padding-top: var(--s-6);
+  }
+
+  .portrait {
+    width: 7rem;
+  }
+
+  .tl-label {
+    font-size: 0.875rem;
+  }
+
+  .section {
+    margin-top: var(--s-8);
+  }
+
+  .entry {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "head"
+      "meta"
+      "body";
+  }
+
+  .entry-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--s-4);
+    margin-top: var(--s-1);
+  }
+
+  .pairs > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pairs dd {
+    grid-column: 1;
+  }
+}
+
+/* Touch screens get 44px targets. */
+
+@media (pointer: coarse) {
+  .tl-rows a {
+    min-height: 2.75rem;
+  }
+
+  .nav-list a,
+  .hero-links a,
+  .rail-link,
+  .footer-inner a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .tl-track {
+    transition: opacity 0.15s ease;
+  }
+}
+
+@media (forced-colors: active) {
+  .tl-bar,
+  .tl-dot,
+  .legend li::before,
+  .section-title::before,
+  .entry:target::before {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+
+  .tl-bar.is-expected {
+    background: none;
+    border-color: CanvasText;
+  }
+}
