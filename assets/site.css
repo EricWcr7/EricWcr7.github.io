@@ -280,8 +280,8 @@ sub {
   font-weight: 600;
 }
 
-/* 52rem: the header measures about 50rem on one line, so it only sticks when it cannot wrap. */
-@media (min-width: 52rem) and (min-height: 36rem) {
+/* 56rem: the header measures about 54rem on one line, so it only sticks when it cannot wrap. */
+@media (min-width: 56rem) and (min-height: 36rem) {
   html {
     scroll-padding-top: calc(var(--header-h) + var(--s-4));
   }
@@ -536,6 +536,13 @@ figcaption {
   letter-spacing: -0.01em;
 }
 
+/* About prose sits in the content column, beside the rail, like entry bodies. */
+.about {
+  max-width: var(--measure);
+  margin-top: var(--s-5);
+  margin-left: calc(var(--rail) + var(--gap));
+}
+
 .entry {
   position: relative;
   display: grid;
@@ -730,6 +737,10 @@ figcaption {
 
   .section {
     margin-top: var(--s-8);
+  }
+
+  .about {
+    margin-left: 0;
   }
 
   .entry {
