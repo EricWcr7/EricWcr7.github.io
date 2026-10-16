@@ -20,7 +20,7 @@ Every claim on the page comes from my verified career records and stays within t
 
 The chart measures time in months since September 2022: a month's position is `(year - 2022) * 12 + (month - 9)`, so May 2025 is 32. In `index.html`, bars set `--start` and `--end` (the month after the last month), dots set `--at` (the middle of the month, such as 27.5 for December 2024), and bars for ongoing work use the `is-ongoing` class.
 
-`--asof` in `assets/site.css` is the date the page was last checked (49.1 is October 3, 2026). When it changes, update the "Oct 2026" label, the chart caption, and the footer's "Updated" date in `index.html` to match. `--span` (58) ends the axis after June 2027.
+`--asof` in `assets/site.css` is the date the page was last checked (49.5 is October 16, 2026). When it changes, update the "Oct 2026" label, the chart caption, and the footer's "Updated" date in `index.html` to match. `--span` (58) ends the axis after June 2027.
 
 ## Rebuilding the CV
 
