@@ -622,43 +622,11 @@ figcaption {
 }
 
 .courses {
-  width: 100%;
-  max-width: 34rem;
-  margin-top: var(--s-5);
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
+  margin-top: var(--s-3);
 }
 
-.courses caption {
-  margin-bottom: var(--s-2);
+.courses strong {
   font-weight: 600;
-  text-align: left;
-}
-
-.courses th,
-.courses td {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--rule);
-  text-align: left;
-  vertical-align: baseline;
-}
-
-.courses thead th {
-  color: var(--muted);
-  font-size: 0.9375rem;
-  font-weight: 400;
-}
-
-.courses tbody th {
-  padding-right: var(--s-5);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.courses td:last-child,
-.courses thead th:last-child {
-  padding-left: var(--s-4);
-  text-align: right;
 }
 
 .pairs {

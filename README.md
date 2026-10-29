@@ -14,7 +14,7 @@ Then open http://localhost:8765/.
 
 ## Content
 
-Every claim on the page comes from my verified career records and follows the wording and style of my current CV and résumés, except that the page keeps course grades, languages, interests, and team details. Course titles follow the University of Toronto Arts & Science calendar. Update the page by hand when a record changes.
+Every claim on the page comes from my verified career records and follows the wording and style of my current CV and résumés, except that the page keeps languages, interests, and team details. Like the CV, the page lists relevant courses by plain name, with no grades. Update the page by hand when a record changes.
 
 ## Updating the timeline chart
 
