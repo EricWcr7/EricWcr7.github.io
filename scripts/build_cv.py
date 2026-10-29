@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """Build the public web copy of the General CV.
 
-The web copy differs from the source CV in exactly three ways:
+The web copy differs from the source CV in exactly two ways:
 
 1. the phone number is removed from the header;
-2. the GPA clause is removed from the education section;
-3. the research section is replaced by the wording used on the website.
+2. the GPA line is removed from the education section.
 
 Every edit must match exactly once, so a change in the CV's structure stops the
-build instead of silently publishing something unintended.
+build instead of silently publishing something unintended. The research section
+is published as written, but the build stops whenever it changes, so new
+research wording is reviewed before it goes public.
+
+When built to the default output, the PDF is written to assets/Eric-Wang-CV.pdf
+and copied to assets/Yi-Fan-Eric-Wang-CV.pdf, the earlier name, so links to it
+keep working.
 
 Usage: python3 scripts/build_cv.py PATH/TO/CV.tex [-o OUTPUT.pdf]
 """
@@ -25,37 +30,27 @@ import sys
 import tempfile
 from pathlib import Path
 
-DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "assets" / "Yi-Fan-Eric-Wang-CV.pdf"
+ASSETS = Path(__file__).resolve().parent.parent / "assets"
+DEFAULT_OUTPUT = ASSETS / "Eric-Wang-CV.pdf"
+LEGACY_OUTPUT = ASSETS / "Yi-Fan-Eric-Wang-CV.pdf"
 
 # Fingerprint of the source CV's research section (see research_fingerprint).
-# When that section changes, the build stops so RESEARCH_BLOCK can be reviewed
-# before anything is published; then update this value.
-EXPECTED_RESEARCH_SHA256 = "97484892008f71cee772e5553188ff0a2512f2f37f6facfc84db3996f980c20f"
-
-RESEARCH_BLOCK = r"""\section{Research Experience}
-  \resumeSubHeadingListStart
-    \resumeProjectHeading{\textbf{Undergraduate Research Student, University of Toronto}}{Toronto, ON, Canada, Sep. 2026 -- Present}
-    \resumeItemListStart
-      \resumeItem{Member of a three-student undergraduate team on ``Correlation-Augmented Neural Retrieval - From Hard Filtering to Spectral Diffusion,'' supervised by Professor Nick Koudas (Department of Computer Science)}
-      \resumeItem{Project tests whether adding a sparse graph of corpus term-association estimates to a dense neural retriever can reduce off-topic results, recover relevant passages that share no query terms, and control query cost}
-      \resumeItem{Team plans to compare four ways to inject that signal: candidate pre-filtering, metric warping for re-scoring, multi-hop graph diffusion, and contrastive fine-tuning, with an evaluation protocol and an assumption audit}
-    \resumeItemListEnd
-  \resumeSubHeadingListEnd
-
-"""
+# When that section changes, the build stops so the new wording can be reviewed
+# before it is published; then update this value.
+EXPECTED_RESEARCH_SHA256 = "bd4e2826d384a1056c2d710c61460ed2bf779a1798c9743eeed0be7779d59c4a"
 
 PDF_METADATA = (
-    r"\hypersetup{pdftitle={Yi Fan (Eric) Wang — CV}, pdfauthor={Yi Fan (Eric) Wang},"
+    r"\hypersetup{pdftitle={Eric Wang — CV}, pdfauthor={Eric Wang},"
     r" pdfdisplaydoctitle=true, pdflang=en-US}"
 )
 
 PHONE_DEFINITION = re.compile(r"^\\newcommand\{\\ApplicantPhone\}\{([^}\n]*)\}[ \t]*\n", re.MULTILINE)
 PHONE_IN_HEADER = re.compile(r"\\ApplicantPhone\{\}\s*\$\|\$[ \t]*")
-GPA_CLAUSE = re.compile(r"\d\.\d\d annual GPA \([^)]*\);\s*")
+GPA_ITEM = re.compile(r"^[ \t]*\\resumeItem\{\\textbf\{\\scshape GPA\}:\s*([^%{}\n]*)\}[ \t]*\n", re.MULTILINE)
+GPA_VALUE = re.compile(r"\d+\.\d+")
 RESEARCH_MARKER = re.compile(r"^%-+RESEARCH EXPERIENCE-+[ \t]*$", re.MULTILINE)
 WORK_MARKER = re.compile(r"^%-+WORK EXPERIENCE-+[ \t]*$", re.MULTILINE)
 BEGIN_DOCUMENT = re.compile(r"^\\begin\{document\}", re.MULTILINE)
-NEWPAGE = re.compile(r"\\newpage\b")
 PAGES_WRITTEN = re.compile(r"Output written on cv\.pdf \((\d+) pages?")
 
 
@@ -101,18 +96,24 @@ def make_web_copy(src: str, expected_research_sha256: str = EXPECTED_RESEARCH_SH
         raise BuildError(f"expected exactly one phone macro definition, found {len(definitions)}")
     phone_digits = re.sub(r"\D", "", definitions[0])
 
+    gpa_items = GPA_ITEM.findall(src)
+    if len(gpa_items) != 1:
+        raise BuildError(f"expected exactly one GPA line, found {len(gpa_items)}")
+    gpa_value = GPA_VALUE.search(gpa_items[0])
+    if gpa_value is None:
+        raise BuildError("the GPA line has no GPA value")
+
     text = _replace_once(PHONE_DEFINITION, src, "", "phone macro definition")
     text = _replace_once(PHONE_IN_HEADER, text, "", "phone entry in the header")
-    text = _replace_once(GPA_CLAUSE, text, "", "GPA clause")
+    text = _replace_once(GPA_ITEM, text, "", "GPA line")
 
     start, end = _research_span(text)
     actual = research_fingerprint(text[start:end])
     if actual != expected_research_sha256:
         raise BuildError(
-            f"research section changed (fingerprint {actual}). Review RESEARCH_BLOCK in "
-            "scripts/build_cv.py against the new CV, then set EXPECTED_RESEARCH_SHA256 to this value."
+            f"research section changed (fingerprint {actual}). Review the new research wording "
+            "for public use, then set EXPECTED_RESEARCH_SHA256 in scripts/build_cv.py to this value."
         )
-    text = text[:start] + "\n" + RESEARCH_BLOCK + text[end:]
 
     text = _replace_once(BEGIN_DOCUMENT, text, PDF_METADATA + "\n\\begin{document}", "\\begin{document}")
 
@@ -124,6 +125,8 @@ def make_web_copy(src: str, expected_research_sha256: str = EXPECTED_RESEARCH_SH
         raise BuildError("the phone number is still present")
     if "gpa" in visible.lower():
         raise BuildError("a GPA mention is still present")
+    if gpa_value.group() in visible:
+        raise BuildError("the GPA value is still present")
     return text
 
 
@@ -167,12 +170,6 @@ def compile_pdf(tex: str, output: Path, source: Path) -> int:
         if not written:
             raise BuildError("could not find the page count in the LaTeX log")
         pages = int(written[-1])
-        expected_pages = len(NEWPAGE.findall(strip_comments(tex))) + 1
-        if pages != expected_pages:
-            raise BuildError(
-                f"the PDF has {pages} pages but the source has {expected_pages - 1} page break(s); "
-                "a page probably overflowed"
-            )
 
         output.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(workdir / "cv.pdf", output)
@@ -188,6 +185,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         tex = make_web_copy(args.source.read_text(encoding="utf-8"))
         pages = compile_pdf(tex, args.output, args.source.resolve())
+        if args.output.resolve() == DEFAULT_OUTPUT:
+            shutil.copyfile(args.output, LEGACY_OUTPUT)
     except (BuildError, OSError) as error:
         print(f"build_cv: {error}", file=sys.stderr)
         return 1

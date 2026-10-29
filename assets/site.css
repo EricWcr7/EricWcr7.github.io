@@ -61,10 +61,10 @@
   --measure: 36rem; /* about 70 characters of body text */
   --header-h: 3.5rem;
 
-  /* Chart axis: months since Sep 2022. --span ends with Jun 2027; --asof is Oct 16, 2026
+  /* Chart axis: months since Sep 2022. --span ends with Jun 2027; --asof is Oct 29, 2026
      and must change together with the "Oct 2026" labels in index.html. */
   --span: 58;
-  --asof: 49.5;
+  --asof: 49.9;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -617,18 +617,8 @@ figcaption {
   color: var(--muted);
 }
 
-.note {
-  margin-top: var(--s-1);
-  color: var(--muted);
-  font-size: 1rem;
-}
-
 .entry-body > p:first-child {
   margin-top: var(--s-3);
-}
-
-.project-title {
-  font-weight: 600;
 }
 
 .courses {
